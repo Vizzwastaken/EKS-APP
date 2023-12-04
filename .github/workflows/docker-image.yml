@@ -67,6 +67,7 @@ jobs:
     steps:
       - run: |
           echo "Update image tag"
+          git config --global user.email vishnukalathilcr77@gmail.com && git config --global user.name vizz
           echo "cloning config repo $CONFIG_REPO_NAME"
           git clone https://oauth2:${{ secrets.GH_PAT }}@github.com/Vizzwastaken/ARGO-APP.git
           cd $CONFIG_REPO_NAME

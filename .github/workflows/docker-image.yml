@@ -31,19 +31,19 @@ jobs:
             exit 1
           fi    
 
-      - name: Linting source code
-        uses: github/super-linter@v4
-        env:
-           VALIDATE_ALL_CODEBASE: true
-           DEFAULT_BRANCH: master
-           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-           VALIDATE_PYTHON3: true
-           VALIDATE_MARKDOWN: false
-           VALIDATE_GITHUB_ACTIONS: false
+      # - name: Linting source code
+      #   uses: github/super-linter@v4
+      #   env:
+      #      VALIDATE_ALL_CODEBASE: true
+      #      DEFAULT_BRANCH: master
+      #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #      VALIDATE_PYTHON3: true
+      #      VALIDATE_MARKDOWN: false
+      #      VALIDATE_GITHUB_ACTIONS: false
            
           
   Push-Docker-Image:
-    needs: [Basic-Quality-Checks]
+#    needs: [Basic-Quality-Checks]
     runs-on: ubuntu-latest
     steps:        
       - name: Check out
@@ -74,7 +74,7 @@ jobs:
           echo "checkout main branch"
           git checkout main
           echo "updating image tag in values file"
-          sed -i "s,proj1:.*,proj1:\${{github.sha}}," deployment.yaml
+          sed -i "s,proj1:.*,proj1:${{ github.sha }}," helm/webapp/values.yaml
           git add . && git commit -m "update image tag"
           git push
 

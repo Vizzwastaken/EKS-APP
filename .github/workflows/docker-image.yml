@@ -1,0 +1,68 @@
+name: Docker Image CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "Develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+
+jobs:
+  Basic-Quality-Checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout files
+        uses: actions/checkout@v3
+
+      - name: check if Docker File exists
+        run: |
+          ls -lrt
+          echo ${{ github.event.repository.name }}
+          if [ -f ./Dockerfile ]; then
+            echo "====================================="
+            echo "        Docker file exists"
+            echo "====================================="
+          else
+            echo "====================================="
+            echo "      Docker file dosent exist"
+            echo "====================================="
+            exit 1
+          fi    
+
+      - name: Linting source code
+        uses: github/super-linter@v4
+        env:
+           VALIDATE_ALL_CODEBASE: true
+           DEFAULT_BRANCH: master
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+           VALIDATE_PYTHON3: true
+           VALIDATE_MARKDOWN: false
+           VALIDATE_GITHUB_ACTIONS: false
+           
+          
+  Push-Docker-Image:
+    needs: [Basic-Quality-Checks]
+    runs-on: ubuntu-latest
+    steps:        
+      - name: Check out
+        uses: actions/checkout@v3
+        
+      - name: Docker Login
+        uses: docker/login-action@v2.1.0
+        with:
+          username: vizzwastaken
+          password: ${{ secrets.DOCKER_PASS }}
+          
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: vizzwastaken/proj1:latest
+
+
+          
+
+    
+    
+

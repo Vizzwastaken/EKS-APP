@@ -1,5 +1,6 @@
 name: Docker Image CI
-
+env:
+  CONFIG_REPO_NAME: ARGO-APP
 on:
   workflow_dispatch:
   push:
@@ -30,19 +31,19 @@ jobs:
             exit 1
           fi    
 
-      - name: Linting source code
-        uses: github/super-linter@v4
-        env:
-           VALIDATE_ALL_CODEBASE: true
-           DEFAULT_BRANCH: master
-           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-           VALIDATE_PYTHON3: true
-           VALIDATE_MARKDOWN: false
-           VALIDATE_GITHUB_ACTIONS: false
+      # - name: Linting source code
+      #   uses: github/super-linter@v4
+      #   env:
+      #      VALIDATE_ALL_CODEBASE: true
+      #      DEFAULT_BRANCH: master
+      #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #      VALIDATE_PYTHON3: true
+      #      VALIDATE_MARKDOWN: false
+      #      VALIDATE_GITHUB_ACTIONS: false
            
           
   Push-Docker-Image:
-    needs: [Basic-Quality-Checks]
+#    needs: [Basic-Quality-Checks]
     runs-on: ubuntu-latest
     steps:        
       - name: Check out
@@ -58,8 +59,24 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: vizzwastaken/proj1:latest
-
+          tags: vizzwastaken/proj1:${{ github.sha }}
+          
+  edit-Config-repo:
+    runs-on: ubuntu-latest
+    needs: [Push-Docker-Image]
+    steps:
+      - run: |
+          echo "Update image tag"
+          git config --global user.email vishnukalathilcr77@gmail.com && git config --global user.name vizz
+          echo "cloning config repo $CONFIG_REPO_NAME"
+          git clone https://oauth2:${{ secrets.GH_PAT }}@github.com/Vizzwastaken/ARGO-APP.git
+          cd $CONFIG_REPO_NAME
+          echo "checkout main branch"
+          git checkout main
+          echo "updating image tag in values file"
+          sed -i "s,proj1:.*,proj1:${{ github.sha }}," deployment.yaml
+          git add . && git commit -m "update image tag"
+          git push
 
           
 

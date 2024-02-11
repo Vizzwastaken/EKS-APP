@@ -1,8 +1,8 @@
-# Use a lightweight web server image
-FROM nginx:alpine
+# syntax=docker/dockerfile:1
 
-# Copy the HTML file to the web server directory
-COPY index.html /usr/share/nginx/html/index.html
-
-# Expose port 8080
-EXPOSE 80
+FROM node:18-alpine
+WORKDIR /app
+COPY . .
+RUN yarn install --production
+CMD ["node", "src/index.js"]
+EXPOSE 3000

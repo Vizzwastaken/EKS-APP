@@ -81,4 +81,4 @@ jobs:
           echo "updating image tag in values file"
           sed -i "s,proj1:.*,proj1:${{ github.sha }}," deployment.yaml
           git add . && git commit -m "update image tag"
-          git push
+          git push -u origin main -c http.extraheader="AUTHORIZATION: bearer ${{ secrets.GH_PAT }}"
